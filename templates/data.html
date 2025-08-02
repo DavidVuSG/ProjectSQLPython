@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Data</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <input type="text" id="search-box" placeholder="Type to search...">
+    <button onclick="fetchData()">Search</button>
+
+    <div class="table-container">
+        <table id="data-table">
+            <thead>
+                <tr id="table-head"></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+    // Run when page loads or input changes
+    document.getElementById("search-box").addEventListener("input", fetchData);
+    window.onload = fetchData;
+
+    // Fetch data from Flask server
+    function fetchData() {
+        const query = document.getElementById("search-box").value;
+        fetch(`/search?q=${query}`)
+            .then(response => response.json())
+            .then(data => renderTable(data));
+    }
+
+    // Render the dynamic table
+    function renderTable(data) {
+        const thead = document.getElementById("table-head");
+        const tbody = document.querySelector("#data-table tbody");
+
+        // Clear existing content
+        thead.innerHTML = "";
+        tbody.innerHTML = "";
+
+        // Render headers
+        data.headers.forEach(header => {
+            const th = document.createElement("th");
+            th.textContent = header;
+            thead.appendChild(th);
+        });
+
+        // Render rows
+        data.rows.forEach(item => {
+            const tr = document.createElement("tr");
+            if (item.class) tr.classList.add(item.class); // Add highlight class if needed
+
+            item.row.forEach(cell => {
+                const td = document.createElement("td");
+                td.textContent = cell;
+                tr.appendChild(td);
+            });
+
+            tbody.appendChild(tr);
+        });
+    }
+    </script>
+</body>
+</html>
