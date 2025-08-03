@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import sqlite3
+import datetime
 
 app = Flask(__name__)
 
@@ -88,20 +89,29 @@ def search():
     params = [f"%{sku}%", f"%{po}%", f"%{pallet}%"] + blocked_items
     cursor.execute(sql, params)
     rows = cursor.fetchall()
-    headers = [desc[0] for desc in cursor.description]
+    headers = [desc[0] for desc in cursor.description] + ["DAYS_IN_WH"]
     conn.close()
 
     formatted_rows = []
+    today = datetime.datetime.now().date()
+
     for row in rows:
         row = list(row)
+        
+        # Convert DELIVERYDATE to formatted date and calculate days
         try:
-            row[9] = pd.to_datetime(row[9], errors="coerce").strftime("%d/%m/%Y")
+            delivery_date = pd.to_datetime(row[9], errors="coerce").date()
+            row[9] = delivery_date.strftime("%d/%m/%Y")
+            days_in_warehouse = (today - delivery_date).days
         except:
-            pass
+            days_in_warehouse = ""
 
+        row.append(days_in_warehouse)
+
+        # Highlight pallet cell if SOLUONG == QPACK
         try:
             sol = int(str(row[4]).replace(",", "").strip())
-            qpk = int(str(row[-1]).replace(",", "").strip())
+            qpk = int(str(row[-2]).replace(",", "").strip())  # QPACK is before new col
             row_class = "highlight-pallet" if sol == qpk else ""
         except:
             row_class = ""

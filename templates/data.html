@@ -54,60 +54,68 @@
     }
 
     function renderTable(data) {
-        const thead = document.getElementById("table-head");
-        const tbody = document.querySelector("#data-table tbody");
-        thead.innerHTML = "";
-        tbody.innerHTML = "";
-        selectedRows.clear();
-        lastSelectedIndex = null;
+    const thead = document.getElementById("table-head");
+    const tbody = document.querySelector("#data-table tbody");
+    thead.innerHTML = "";
+    tbody.innerHTML = "";
+    selectedRows.clear();
+    lastSelectedIndex = null;
 
-        // Render headers
-        data.headers.forEach(header => {
-            const th = document.createElement("th");
-            th.textContent = header;
-            thead.appendChild(th);
+    // Render headers
+    data.headers.forEach(header => {
+        const th = document.createElement("th");
+        th.textContent = header;
+        thead.appendChild(th);
+    });
+
+    data.rows.forEach((item, index) => {
+        const tr = document.createElement("tr");
+
+        // Apply backend class
+        if (item.class) tr.classList.add(...item.class.split(" "));
+
+        // ✅ Highlight if DAYS_IN_WH ≤ 30
+        const daysValue = parseInt(item.row[item.row.length - 1]);
+        if (!isNaN(daysValue) && daysValue <= 30) {
+            tr.classList.add("recent-item");
+        }
+
+        // Render row data
+        item.row.forEach(cell => {
+            const td = document.createElement("td");
+            td.textContent = cell;
+            tr.appendChild(td);
         });
 
-        // Render rows
-        data.rows.forEach((item, index) => {
-            const tr = document.createElement("tr");
-            if (item.class) tr.classList.add(item.class);
+        // Enable row selection
+        tr.addEventListener("click", (event) => {
+            const tableRows = document.querySelectorAll("#data-table tbody tr");
 
-            item.row.forEach(cell => {
-                const td = document.createElement("td");
-                td.textContent = cell;
-                tr.appendChild(td);
-            });
-
-            // ✅ Click + Shift + Click Selection
-            tr.addEventListener("click", (event) => {
-                const tableRows = document.querySelectorAll("#data-table tbody tr");
-
-                if (event.shiftKey && lastSelectedIndex !== null) {
-                    const [start, end] = [lastSelectedIndex, index].sort((a, b) => a - b);
-                    for (let i = start; i <= end; i++) {
-                        selectedRows.add(i);
-                        tableRows[i].style.backgroundColor = "#cce5ff";
-                    }
-                } else {
-                    if (selectedRows.has(index)) {
-                        selectedRows.delete(index);
-                        tr.style.backgroundColor = "";
-                    } else {
-                        selectedRows.add(index);
-                        tr.style.backgroundColor = "#cce5ff";
-                    }
-                    lastSelectedIndex = index;
+            if (event.shiftKey && lastSelectedIndex !== null) {
+                const [start, end] = [lastSelectedIndex, index].sort((a, b) => a - b);
+                for (let i = start; i <= end; i++) {
+                    selectedRows.add(i);
+                    tableRows[i].style.backgroundColor = "#cce5ff";
                 }
+            } else {
+                if (selectedRows.has(index)) {
+                    selectedRows.delete(index);
+                    tr.style.backgroundColor = "";
+                } else {
+                    selectedRows.add(index);
+                    tr.style.backgroundColor = "#cce5ff";
+                }
+                lastSelectedIndex = index;
+            }
 
-                updateSummary(data.rows);
-            });
-
-            tbody.appendChild(tr);
+            updateSummary(data.rows);
         });
 
-        updateSummary(data.rows);
-    }
+        tbody.appendChild(tr);
+    });
+
+    updateSummary(data.rows);
+}
 
     function updateSummary(rows) {
         let count = 0;

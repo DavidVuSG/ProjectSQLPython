@@ -192,8 +192,26 @@ th:nth-child(13) {
 }
 
 
+/* ✅ sTORE DAYS*/
+td:nth-child(14), th:nth-child(14) {
+    white-space: nowrap;
+    overflow: hidden;
+     max-width: 20px;
+    text-overflow: ellipsis;
+}
+th:nth-child(14) {
+    font-weight: bold;
+    max-width: 20px;
+}
+
 
 /* ✅ Highlight PALLET cell when SOLUONG == QPACK */
 tr.highlight-pallet td:nth-child(7) {
     background-color: #ff9900 !important;
 }
+
+
+tr.recent-item td {
+    background-color: #f3e6ff !important;  /* Light purple */
+}
+
