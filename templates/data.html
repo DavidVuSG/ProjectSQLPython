@@ -8,8 +8,14 @@
 <body>
     <input type="text" id="search-box" placeholder="Type to search...">
     <button onclick="fetchData()">Search</button>
+    <button onclick="clearSelection()">Clear Selection</button>
+
+    <div id="summary-box" style="margin-top: 10px; font-weight: bold; color: #004d00;">
+        Selected Rows: 0 | Total SOLUONG: 0 | Total SOTHUNG: 0
+    </div>
 
     <div class="table-container">
+        
         <table id="data-table">
             <thead>
                 <tr id="table-head"></tr>
@@ -61,6 +67,86 @@
             tbody.appendChild(tr);
         });
     }
+    </script>
+
+    <script>
+        let selectedRows = new Set();
+
+function fetchData() {
+    const query = document.getElementById("search-box").value;
+    fetch(`/search?q=${query}`)
+        .then(response => response.json())
+        .then(data => renderTable(data));
+}
+
+function renderTable(data) {
+    const thead = document.getElementById("table-head");
+    const tbody = document.querySelector("#data-table tbody");
+    thead.innerHTML = "";
+    tbody.innerHTML = "";
+    selectedRows.clear(); // reset selection
+
+    // Render headers
+    data.headers.forEach(header => {
+        const th = document.createElement("th");
+        th.textContent = header;
+        thead.appendChild(th);
+    });
+
+    // Render rows
+    data.rows.forEach((item, index) => {
+        const tr = document.createElement("tr");
+        if (item.class) tr.classList.add(item.class);
+
+        item.row.forEach(cell => {
+            const td = document.createElement("td");
+            td.textContent = cell;
+            tr.appendChild(td);
+        });
+
+        // Enable selection on click
+        tr.addEventListener("click", () => {
+            if (selectedRows.has(index)) {
+                selectedRows.delete(index);
+                tr.style.backgroundColor = "";
+            } else {
+                selectedRows.add(index);
+                tr.style.backgroundColor = "#cce5ff"; // Light blue highlight
+            }
+            updateSummary(data.rows);
+        });
+
+        tbody.appendChild(tr);
+    });
+
+    updateSummary(data.rows);
+}
+
+function updateSummary(rows) {
+    let count = 0;
+    let sumSoluong = 0;
+    let sumSothung = 0;
+
+    selectedRows.forEach(i => {
+        const row = rows[i].row;
+        count += 1;
+        sumSoluong += parseInt(row[4]) || 0; // SOLUONG (column 5)
+        sumSothung += parseInt(row[5]) || 0; // SOTHUNG (column 6)
+    });
+
+    document.getElementById("summary-box").innerText =
+        `Selected Rows: ${count} | Total SOLUONG: ${sumSoluong} | Total SOTHUNG: ${sumSothung}`;
+}
+
+function clearSelection() {
+    selectedRows.clear();
+    const tableRows = document.querySelectorAll("#data-table tbody tr");
+    tableRows.forEach(row => {
+        row.style.backgroundColor = ""; // remove highlight
+    });
+    updateSummary([]); // reset summary
+}
+
     </script>
 </body>
 </html>
