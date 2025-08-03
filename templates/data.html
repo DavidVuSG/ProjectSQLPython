@@ -15,7 +15,6 @@
     </div>
 
     <div class="table-container">
-        
         <table id="data-table">
             <thead>
                 <tr id="table-head"></tr>
@@ -25,11 +24,12 @@
     </div>
 
     <script>
-    // Run when page loads or input changes
+    let selectedRows = new Set();
+    let lastSelectedIndex = null;
+
     document.getElementById("search-box").addEventListener("input", fetchData);
     window.onload = fetchData;
 
-    // Fetch data from Flask server
     function fetchData() {
         const query = document.getElementById("search-box").value;
         fetch(`/search?q=${query}`)
@@ -37,26 +37,23 @@
             .then(data => renderTable(data));
     }
 
-    // Render the dynamic table
     function renderTable(data) {
         const thead = document.getElementById("table-head");
         const tbody = document.querySelector("#data-table tbody");
-
-        // Clear existing content
         thead.innerHTML = "";
         tbody.innerHTML = "";
+        selectedRows.clear();
+        lastSelectedIndex = null;
 
-        // Render headers
         data.headers.forEach(header => {
             const th = document.createElement("th");
             th.textContent = header;
             thead.appendChild(th);
         });
 
-        // Render rows
-        data.rows.forEach(item => {
+        data.rows.forEach((item, index) => {
             const tr = document.createElement("tr");
-            if (item.class) tr.classList.add(item.class); // Add highlight class if needed
+            if (item.class) tr.classList.add(item.class);
 
             item.row.forEach(cell => {
                 const td = document.createElement("td");
@@ -64,89 +61,62 @@
                 tr.appendChild(td);
             });
 
+            tr.addEventListener("click", (event) => {
+                const tableRows = document.querySelectorAll("#data-table tbody tr");
+
+                if (event.shiftKey && lastSelectedIndex !== null) {
+                    const [start, end] = [lastSelectedIndex, index].sort((a, b) => a - b);
+                    for (let i = start; i <= end; i++) {
+                        selectedRows.add(i);
+                        tableRows[i].style.backgroundColor = "#cce5ff";
+                    }
+                } else {
+                    if (selectedRows.has(index)) {
+                        selectedRows.delete(index);
+                        tr.style.backgroundColor = "";
+                    } else {
+                        selectedRows.add(index);
+                        tr.style.backgroundColor = "#cce5ff";
+                    }
+                    lastSelectedIndex = index;
+                }
+
+                updateSummary(data.rows);
+            });
+
             tbody.appendChild(tr);
         });
+
+        updateSummary(data.rows);
     }
-    </script>
 
-    <script>
-        let selectedRows = new Set();
+    function updateSummary(rows) {
+        let count = 0;
+        let sumSoluong = 0;
+        let sumSothung = 0;
 
-function fetchData() {
-    const query = document.getElementById("search-box").value;
-    fetch(`/search?q=${query}`)
-        .then(response => response.json())
-        .then(data => renderTable(data));
-}
-
-function renderTable(data) {
-    const thead = document.getElementById("table-head");
-    const tbody = document.querySelector("#data-table tbody");
-    thead.innerHTML = "";
-    tbody.innerHTML = "";
-    selectedRows.clear(); // reset selection
-
-    // Render headers
-    data.headers.forEach(header => {
-        const th = document.createElement("th");
-        th.textContent = header;
-        thead.appendChild(th);
-    });
-
-    // Render rows
-    data.rows.forEach((item, index) => {
-        const tr = document.createElement("tr");
-        if (item.class) tr.classList.add(item.class);
-
-        item.row.forEach(cell => {
-            const td = document.createElement("td");
-            td.textContent = cell;
-            tr.appendChild(td);
+        selectedRows.forEach(i => {
+            const row = rows[i].row;
+            count += 1;
+            sumSoluong += parseInt(row[4]) || 0;
+            sumSothung += parseInt(row[5]) || 0;
         });
 
-        // Enable selection on click
-        tr.addEventListener("click", () => {
-            if (selectedRows.has(index)) {
-                selectedRows.delete(index);
-                tr.style.backgroundColor = "";
-            } else {
-                selectedRows.add(index);
-                tr.style.backgroundColor = "#cce5ff"; // Light blue highlight
-            }
-            updateSummary(data.rows);
+        document.getElementById("summary-box").innerText =
+            `Selected Rows: ${count} | Total SOLUONG: ${sumSoluong} | Total SOTHUNG: ${sumSothung}`;
+    }
+
+    function clearSelection() {
+        selectedRows.clear();
+        lastSelectedIndex = null;
+
+        const tableRows = document.querySelectorAll("#data-table tbody tr");
+        tableRows.forEach(row => {
+            row.style.backgroundColor = "";
         });
 
-        tbody.appendChild(tr);
-    });
-
-    updateSummary(data.rows);
-}
-
-function updateSummary(rows) {
-    let count = 0;
-    let sumSoluong = 0;
-    let sumSothung = 0;
-
-    selectedRows.forEach(i => {
-        const row = rows[i].row;
-        count += 1;
-        sumSoluong += parseInt(row[4]) || 0; // SOLUONG (column 5)
-        sumSothung += parseInt(row[5]) || 0; // SOTHUNG (column 6)
-    });
-
-    document.getElementById("summary-box").innerText =
-        `Selected Rows: ${count} | Total SOLUONG: ${sumSoluong} | Total SOTHUNG: ${sumSothung}`;
-}
-
-function clearSelection() {
-    selectedRows.clear();
-    const tableRows = document.querySelectorAll("#data-table tbody tr");
-    tableRows.forEach(row => {
-        row.style.backgroundColor = ""; // remove highlight
-    });
-    updateSummary([]); // reset summary
-}
-
+        updateSummary([]);
+    }
     </script>
 </body>
 </html>
