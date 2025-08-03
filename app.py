@@ -59,7 +59,9 @@ def index():
 
 @app.route("/search")
 def search():
-    q = request.args.get("q", "")
+    sku = request.args.get("sku", "")
+    po = request.args.get("po", "")
+    pallet = request.args.get("pallet", "")
 
     try:
         block_df = pd.read_excel("block.xlsx")
@@ -74,15 +76,16 @@ def search():
 
     sql = f"""
         SELECT * FROM data
-        WHERE
-            (MAHANG LIKE ? OR LOC LIKE ? OR PALLET LIKE ? OR NCC LIKE ?)
+        WHERE 1=1
+            AND MAHANG LIKE ?
+            AND PO LIKE ?
+            AND PALLET LIKE ?
             {block_condition}
         ORDER BY DELIVERYDATE ASC, LOC ASC, MAHANG ASC
         LIMIT 1000
     """
 
-    like = f"%{q}%"
-    params = [like] * 4 + blocked_items
+    params = [f"%{sku}%", f"%{po}%", f"%{pallet}%"] + blocked_items
     cursor.execute(sql, params)
     rows = cursor.fetchall()
     headers = [desc[0] for desc in cursor.description]

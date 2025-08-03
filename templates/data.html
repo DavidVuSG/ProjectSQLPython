@@ -6,14 +6,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <input type="text" id="search-box" placeholder="Type to search...">
-    <button onclick="fetchData()">Search</button>
+    <!-- 🔍 Multi-field Real-time Search -->
+    <input type="text" id="search-sku" placeholder="SKU (MAHANG)">
+    <input type="text" id="search-po" placeholder="PO">
+    <input type="text" id="search-pallet" placeholder="Pallet">
     <button onclick="clearSelection()">Clear Selection</button>
 
+    <!-- 📊 Summary -->
     <div id="summary-box" style="margin-top: 10px; font-weight: bold; color: #004d00;">
         Selected Rows: 0 | Total SOLUONG: 0 | Total SOTHUNG: 0
     </div>
 
+    <!-- 📋 Table -->
     <div class="table-container">
         <table id="data-table">
             <thead>
@@ -27,12 +31,24 @@
     let selectedRows = new Set();
     let lastSelectedIndex = null;
 
-    document.getElementById("search-box").addEventListener("input", fetchData);
+    // 🔁 Auto fetch when typing
+    document.getElementById("search-sku").addEventListener("input", fetchData);
+    document.getElementById("search-po").addEventListener("input", fetchData);
+    document.getElementById("search-pallet").addEventListener("input", fetchData);
     window.onload = fetchData;
 
     function fetchData() {
-        const query = document.getElementById("search-box").value;
-        fetch(`/search?q=${query}`)
+        const sku = document.getElementById("search-sku").value;
+        const po = document.getElementById("search-po").value;
+        const pallet = document.getElementById("search-pallet").value;
+
+        const query = new URLSearchParams({
+            sku: sku,
+            po: po,
+            pallet: pallet
+        });
+
+        fetch(`/search?${query}`)
             .then(response => response.json())
             .then(data => renderTable(data));
     }
@@ -45,12 +61,14 @@
         selectedRows.clear();
         lastSelectedIndex = null;
 
+        // Render headers
         data.headers.forEach(header => {
             const th = document.createElement("th");
             th.textContent = header;
             thead.appendChild(th);
         });
 
+        // Render rows
         data.rows.forEach((item, index) => {
             const tr = document.createElement("tr");
             if (item.class) tr.classList.add(item.class);
@@ -61,6 +79,7 @@
                 tr.appendChild(td);
             });
 
+            // ✅ Click + Shift + Click Selection
             tr.addEventListener("click", (event) => {
                 const tableRows = document.querySelectorAll("#data-table tbody tr");
 
