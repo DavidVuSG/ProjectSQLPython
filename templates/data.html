@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Data</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .table-container table tbody tr:hover:not(.selected-row) {
+            background-color: #e6f0ff !important;
+            cursor: pointer;
+        }
+
+        .selected-row {
+            background-color: #cce5ff !important;
+        }
+
+        .loc-a204 {
+            background-color: #ffd6d6 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 🔍 Multi-field Real-time Search -->
+    <input type="text" id="search-sku" placeholder="SKU (MAHANG)">
+    <input type="text" id="search-po" placeholder="PO">
+    <input type="text" id="search-pallet" placeholder="Pallet">
+    <button onclick="clearSelection()">Clear Selection</button>
+    <button onclick="reloadData()">🔁 Reload Data</button>
+
+    <!-- 📊 Summary -->
+    <div id="summary-box" style="margin-top: 10px; font-weight: bold; color: #004d00;">
+        Selected Rows: 0 | Total SOLUONG: 0 | Total SOTHUNG: 0
+    </div>
+
+    <!-- 📋 Table -->
+    <div class="table-container">
+        <table id="data-table">
+            <thead>
+                <tr id="table-head"></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+    let selectedRows = new Set();
+    let lastSelectedIndex = null;
+
+    document.getElementById("search-sku").addEventListener("input", fetchData);
+    document.getElementById("search-po").addEventListener("input", fetchData);
+    document.getElementById("search-pallet").addEventListener("input", fetchData);
+    window.onload = fetchData;
+
+    function fetchData() {
+        const sku = document.getElementById("search-sku").value;
+        const po = document.getElementById("search-po").value;
+        const pallet = document.getElementById("search-pallet").value;
+
+        const query = new URLSearchParams({ sku, po, pallet });
+
+        fetch(`/search?${query}`)
+            .then(response => response.json())
+            .then(data => renderTable(data));
+    }
+
+    function renderTable(data) {
+        const thead = document.getElementById("table-head");
+        const tbody = document.querySelector("#data-table tbody");
+        thead.innerHTML = "";
+        tbody.innerHTML = "";
+        selectedRows.clear();
+        lastSelectedIndex = null;
+
+        data.headers.forEach(header => {
+            const th = document.createElement("th");
+            th.textContent = header;
+            thead.appendChild(th);
+        });
+
+        data.rows.forEach((item, index) => {
+            const tr = document.createElement("tr");
+
+            if (item.class) tr.classList.add(...item.class.split(" "));
+
+            const daysValue = parseInt(item.row[item.row.length - 1]);
+            if (!isNaN(daysValue) && daysValue <= 30) {
+                tr.classList.add("recent-item");
+            }
+
+            const locValue = item.row[1];
+            if (locValue && locValue.toUpperCase().includes("A2-04")) {
+                tr.classList.add("loc-a204");
+            }
+
+            item.row.forEach(cell => {
+                const td = document.createElement("td");
+                td.textContent = cell;
+                tr.appendChild(td);
+            });
+
+            tr.addEventListener("click", (event) => {
+                const tableRows = document.querySelectorAll("#data-table tbody tr");
+
+                if (event.shiftKey && lastSelectedIndex !== null) {
+                    const [start, end] = [lastSelectedIndex, index].sort((a, b) => a - b);
+                    for (let i = start; i <= end; i++) {
+                        selectedRows.add(i);
+                        tableRows[i].classList.add("selected-row");
+                    }
+                } else {
+                    if (selectedRows.has(index)) {
+                        selectedRows.delete(index);
+                        tr.classList.remove("selected-row");
+                    } else {
+                        selectedRows.add(index);
+                        tr.classList.add("selected-row");
+                    }
+                    lastSelectedIndex = index;
+                }
+
+                updateSummary(data.rows);
+            });
+
+            tbody.appendChild(tr);
+        });
+
+        updateSummary(data.rows);
+
+        highlightDuplicatePallets();
+
+
+        
+    }
+
+    function updateSummary(rows) {
+        let count = 0;
+        let sumSoluong = 0;
+        let sumSothung = 0;
+
+        selectedRows.forEach(i => {
+            const row = rows[i].row;
+            count += 1;
+            sumSoluong += parseInt(row[4]) || 0;
+            sumSothung += parseInt(row[5]) || 0;
+        });
+
+        document.getElementById("summary-box").innerText =
+            `Selected Rows: ${count} | Total SOLUONG: ${sumSoluong} | Total SOTHUNG: ${sumSothung}`;
+    }
+
+    function clearSelection() {
+        selectedRows.clear();
+        lastSelectedIndex = null;
+
+        const tableRows = document.querySelectorAll("#data-table tbody tr");
+        tableRows.forEach(row => {
+            row.classList.remove("selected-row");
+        });
+
+        updateSummary([]);
+    }
+
+    function reloadData() {
+        if (!confirm("Reload b36.xls and refresh table?")) return;
+
+        fetch("/reload", { method: "POST" })
+            .then(res => res.json())
+            .then(result => {
+                alert(result.message);
+                fetchData();
+            })
+            .catch(err => {
+                alert("❌ Reload failed: " + err);
+            });
+    }
+    </script>
+
+   <script>
+        function highlightDuplicatePallets() {
+            const rows = document.querySelectorAll("#data-table tbody tr");
+            const palletMap = new Map();
+
+            rows.forEach((row, index) => {
+                const palletCell = row.querySelector("td:nth-child(7)");
+                if (palletCell) {
+                    const palletValue = palletCell.textContent.trim();
+                    if (palletValue) {
+                        if (!palletMap.has(palletValue)) {
+                            palletMap.set(palletValue, []);
+                        }
+                        palletMap.get(palletValue).push(row);
+                    }
+                }
+            });
+
+            palletMap.forEach(rowList => {
+                if (rowList.length > 1) { // Duplicate found
+                    rowList.forEach(r => {
+                        r.classList.add("duplicate-pallet");
+                    });
+                }
+            });
+        }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,256 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    padding: 20px;
+    background: #f0f0f0;
+}
+
+input, button {
+    padding: 10px;
+    margin-right: 5px;
+}
+
+.table-container {
+    max-height: 800px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    margin-top: 20px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: auto;
+    text-align: center;
+    font-size: 12px;
+}
+
+th, td {
+    padding: 4px;
+    border: 1px solid #ccc;
+    vertical-align: middle;
+    white-space: nowrap;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* ✅ Sticky + Wrapping Header Row */
+thead th {
+    position: sticky;
+    top: 0;
+    background-color: #004d00;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    z-index: 2;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.2;
+    padding: 6px 4px;
+    text-align: center;
+}
+
+/* ✅ STT (Column 1) */
+td:nth-child(1), th:nth-child(1) { 
+    max-width: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ✅ LOC (Column 2) */
+td:nth-child(2) {
+    font-weight: bold;
+    color: #002699;
+     max-width: 30px;
+
+}
+th:nth-child(2) {
+    font-weight: bold;
+    max-width: 30px;
+}
+
+/* ✅ MÃ HÀNG (Column 3) */
+td:nth-child(3) {
+    font-weight: bold;
+    max-width: 60px;
+}
+th:nth-child(3) {
+    font-weight: bold;
+    max-width: 60px;
+}
+
+/* ✅ TÊN HÀNG (Column 4) */
+td:nth-child(4), th:nth-child(4) {
+    max-width: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ✅ SỐ LƯỢNG (Column 5) */
+td:nth-child(5) {
+    font-weight: bold;
+    color: #cc0000;
+    max-width: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+th:nth-child(5) {
+    font-weight: bold;
+    max-width: 15px;
+}
+
+/* ✅ SỐ THÙNG (Column 6) */
+td:nth-child(6) {
+    font-weight: bold;
+    max-width: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+th:nth-child(6) {
+    font-weight: bold;
+    max-width: 15px;
+}
+
+/* ✅ PALLET (Column 7) */
+td:nth-child(7) {
+    font-weight: bold;
+    color: #001133;
+     max-width: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+th:nth-child(7) {
+    font-weight: bold;
+     max-width: 50px;
+}
+
+/* ✅ SỐ PO (Column 8) */
+td:nth-child(8) {
+    font-weight: normal;
+    color: #3377ff;
+    max-width: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+th:nth-child(8) {
+    font-weight: bold;
+    max-width: 30px;
+}
+
+/* ✅ MÃ NCC (Column 9) */
+td:nth-child(9), th:nth-child(9) {
+    max-width: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ✅ DELIVERY DATE (Column 10) */
+td:nth-child(10) {
+    font-weight: bold;
+    max-width: 40px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+th:nth-child(10) {
+    font-weight: bold;
+    max-width: 30px;
+}
+
+/* ✅ NGÀY LẬP PHIẾU (Column 11) */
+td:nth-child(11), th:nth-child(11) {
+    white-space: nowrap;
+    overflow: hidden;
+     max-width: 15px;
+    text-overflow: ellipsis;
+}
+th:nth-child(11) {
+    font-weight: bold;
+    max-width: 15px;
+}
+
+
+/* ✅ pack */
+td:nth-child(12), th:nth-child(12) {
+    white-space: nowrap;
+    overflow: hidden;
+    color: #084dd8;
+    max-width: 10px;
+    font-weight: bold;
+    text-overflow: ellipsis;
+}
+th:nth-child(12) {
+    font-weight: bold;
+    max-width: 10px;
+}
+
+
+/* ✅ Qpack */
+td:nth-child(13), th:nth-child(13) {
+    white-space: nowrap;
+    overflow: hidden;
+     max-width: 10px;
+    text-overflow: ellipsis;
+}
+th:nth-child(13) {
+    font-weight: bold;
+    max-width: 10px;
+}
+
+
+/* ✅ sTORE DAYS*/
+td:nth-child(14), th:nth-child(14) {
+    white-space: nowrap;
+     color: #ce0a83;
+    overflow: hidden;
+     max-width: 20px;
+    text-overflow: ellipsis;
+}
+th:nth-child(14) {
+    font-weight: bold;
+    max-width: 20px;
+}
+
+
+/* ✅ Highlight PALLET cell when SOLUONG == QPACK */
+tr.highlight-pallet td:nth-child(7) {
+    background-color: #fdc344 !important;
+}
+
+
+tr.recent-item td {
+    background-color: #f3e6ff !important;  /* Light purple */
+}
+
+.loc-a204 {
+    background-color: #f36d6d !important;
+}
+
+
+/* 🔳 Default row background */
+.table-container table tbody tr {
+    background-color: white;
+    transition: background-color 0.15s ease-in-out;
+}
+
+/* 🟦 Hover effect for unselected rows */
+.table-container table tbody tr:hover:not(.selected-row) {
+    background-color: #f0f8ff !important; /* Light blue hover */
+    cursor: pointer;
+}
+
+/* 🔵 Selected row */
+.selected-row {
+    background-color: #414141 !important; /* Light sky blue */
+}
+
+/* 🔴 LOC A2-04 highlight — layered below selection */
+.loc-a204 {
+    background-color: #ffe5e5 !important; /* Light red */
+}
+
+
+.duplicate-pallet td:nth-child(7) {
+    background-color: #fce8e8 !important; /* Light red background */
+    color: #7c0303;               /* Red text */
+    font-weight: bold;
+}
+
