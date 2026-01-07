@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     padding: 20px;
     background: #f0f0f0;
 }
@@ -51,7 +51,9 @@ thead th {
 
 /* ✅ STT (Column 1) */
 td:nth-child(1), th:nth-child(1) { 
-       max-width: 30px;
+    max-width: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* ✅ LOC (Column 2) */
@@ -78,7 +80,7 @@ th:nth-child(3) {
 
 /* ✅ TÊN HÀNG (Column 4) */
 td:nth-child(4), th:nth-child(4) {
-    max-width: 30px;
+    max-width: 20px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -112,31 +114,31 @@ th:nth-child(6) {
 td:nth-child(7) {
     font-weight: bold;
     color: #001133;
-     max-width: 35px;
+     max-width: 50px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 th:nth-child(7) {
     font-weight: bold;
-     max-width: 35px;
+     max-width: 50px;
 }
 
 /* ✅ SỐ PO (Column 8) */
 td:nth-child(8) {
     font-weight: normal;
     color: #3377ff;
-    max-width: 40px;
+    max-width: 30px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 th:nth-child(8) {
     font-weight: bold;
-    max-width: 40px;
+    max-width: 30px;
 }
 
 /* ✅ MÃ NCC (Column 9) */
 td:nth-child(9), th:nth-child(9) {
-    max-width: 40px;
+    max-width: 30px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -144,7 +146,7 @@ td:nth-child(9), th:nth-child(9) {
 /* ✅ DELIVERY DATE (Column 10) */
 td:nth-child(10) {
     font-weight: bold;
-    max-width: 40px;
+    max-width: 30px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -157,12 +159,12 @@ th:nth-child(10) {
 td:nth-child(11), th:nth-child(11) {
     white-space: nowrap;
     overflow: hidden;
-     max-width: 30px;
+     max-width: 15px;
     text-overflow: ellipsis;
 }
 th:nth-child(11) {
     font-weight: bold;
-    max-width: 30px;
+    max-width: 15px;
 }
 
 
@@ -170,7 +172,9 @@ th:nth-child(11) {
 td:nth-child(12), th:nth-child(12) {
     white-space: nowrap;
     overflow: hidden;
-     max-width: 10px;
+    color: #084dd8;
+    max-width: 10px;
+    font-weight: bold;
     text-overflow: ellipsis;
 }
 th:nth-child(12) {
@@ -195,6 +199,7 @@ th:nth-child(13) {
 /* ✅ sTORE DAYS*/
 td:nth-child(14), th:nth-child(14) {
     white-space: nowrap;
+     color: #ce0a83;
     overflow: hidden;
      max-width: 20px;
     text-overflow: ellipsis;
@@ -207,7 +212,7 @@ th:nth-child(14) {
 
 /* ✅ Highlight PALLET cell when SOLUONG == QPACK */
 tr.highlight-pallet td:nth-child(7) {
-    background-color: #ff9900 !important;
+    background-color: #fdc344 !important;
 }
 
 
@@ -215,3 +220,56 @@ tr.recent-item td {
     background-color: #f3e6ff !important;  /* Light purple */
 }
 
+.loc-a204 {
+    background-color: #f36d6d !important;
+}
+
+
+/* 🔳 Default row background */
+.table-container table tbody tr {
+    background-color: white;
+    transition: background-color 0.15s ease-in-out;
+}
+
+/* 🟦 Hover effect for unselected rows */
+.table-container table tbody tr:hover:not(.selected-row) {
+    background-color: #f0f8ff !important; /* Light blue hover */
+    cursor: pointer;
+}
+
+/* 🔵 Selected row */
+.selected-row {
+    background-color: #414141 !important; /* Light sky blue */
+}
+
+/* 🔴 LOC A2-04 highlight — layered below selection */
+.loc-a204 {
+    background-color: #ffe5e5 !important; /* Light red */
+}
+
+
+.duplicate-pallet td:nth-child(7) {
+    background-color: #fce8e8 !important; /* Light red background */
+    color: #7c0303;               /* Red text */
+    font-weight: bold;
+}
+
+
+/* 📊 Summary box */
+#summary-box {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #004d00;
+    font-size: 18px;              /* overall bigger */
+}
+
+/* 🔴 Emphasize TOTAL SOLUONG */
+#summary-box .total-soluong {
+    font-size: 24px;              /* much bigger */
+    color: #cc0000;
+}
+
+.soluong {
+    color: #cc0000;   /* red */
+    font-size: 45px;  /* optional */
+}

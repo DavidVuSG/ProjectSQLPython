@@ -32,7 +32,7 @@ def initialize_db():
     df.rename(columns=rename_map, inplace=True)
 
     df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
-    df = df[~df["LOC"].astype(str).str.upper().str.contains("PICKTO|PACK", na=False)]
+    df = df[~df["LOC"].astype(str).str.upper().str.contains("PICKTO|PACK|AGV", na=False)]
     df = df[df["MAHANG"].notna() & (df["MAHANG"].astype(str).str.strip() != "")]
 
     # Merge PACK + QPACK
@@ -122,6 +122,15 @@ def search():
         "headers": headers,
         "rows": formatted_rows
     })
+
+@app.route("/reload", methods=["POST"])
+def reload_data():
+    try:
+        initialize_db()
+        return jsonify({"status": "success", "message": "Data reloaded ✅"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
 
 if __name__ == "__main__":
     initialize_db()
