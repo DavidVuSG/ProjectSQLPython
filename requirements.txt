@@ -1,0 +1,9 @@
+flask
+flask-sqlalchemy
+mysql-connector-python
+psycopg2-binary
+python-dotenv
+pandas
+numpy
+xlrd
+openpyxl
